@@ -1,0 +1,98 @@
+<%- include('partials/header') %>
+<div class="page-header">
+  <h4><i class="bi bi-arrow-return-left"></i> Retur Produk</h4>
+  <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addModal"><i class="bi bi-plus-lg"></i> Tambah Retur</button>
+</div>
+
+<div class="card">
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead>
+          <tr>
+            <th>Tanggal Retur</th>
+            <th>Produk</th>
+            <th>Jumlah</th>
+            <th>Alasan</th>
+            <th>Status Barang</th>
+            <th>Kerugian</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if(returns.length === 0) { %>
+            <tr><td colspan="6">
+              <div class="empty-state">
+                <i class="bi bi-arrow-return-left"></i>
+                <p class="text-muted mb-0">Belum ada retur. Klik "Tambah Retur" untuk mencatat.</p>
+              </div>
+            </td></tr>
+          <% } %>
+          <% returns.forEach(r => { %>
+          <tr>
+            <td><span class="badge bg-light text-dark"><i class="bi bi-calendar3"></i> <%= r.tanggal_retur %></span></td>
+            <td class="fw-semibold"><%= r.product_name %></td>
+            <td><span class="badge bg-secondary"><%= r.jumlah %></span></td>
+            <td><%= r.alasan || '-' %></td>
+            <td><span class="badge bg-<%= r.status_barang === 'layak' ? 'success' : 'danger' %>"><%= r.status_barang === 'layak' ? 'Layak Jual' : 'Rusak' %></span></td>
+            <td class="text-danger fw-semibold">-Rp <%= Number(r.kerugian).toLocaleString('id-ID') %></td>
+          </tr>
+        <% }); %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="modal fade" id="addModal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form method="POST" action="/returns">
+        <div class="modal-header"><h5 class="modal-title"><i class="bi bi-plus-circle text-primary"></i> Tambah Retur</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label">Pilih Transaksi</label>
+            <select class="form-select" name="transaction_id" required id="transactionSelect">
+              <option value="">-- Pilih Transaksi --</option>
+              <% transactions.forEach(t => { %>
+              <option value="<%= t.id %>"><%= t.tanggal %> - <%= t.items ? t.items.substring(0,50) : '' %></option>
+              <% }); %>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Pilih Produk</label>
+            <select class="form-select" name="product_id" required>
+              <option value="">-- Pilih Produk --</option>
+              <% allProducts.forEach(p => { %>
+              <option value="<%= p.id %>"><%= p.name %></option>
+            <% }); %>
+            </select>
+          </div>
+          <div class="row g-2 mb-3">
+            <div class="col-6"><label class="form-label">Jumlah Retur</label><input class="form-control" name="jumlah" type="number" min="1" required></div>
+            <div class="col-6"><label class="form-label">Tanggal Retur</label><input class="form-control" name="tanggal_retur" type="date" value="<%= new Date().toISOString().split('T')[0] %>"></div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Alasan Retur</label>
+            <select class="form-select" name="alasan">
+              <option value="barang rusak">Barang Rusak</option>
+              <option value="salah kirim">Salah Kirim</option>
+              <option value="berubah pikiran">Berubah Pikiran</option>
+              <option value="lainnya">Lainnya</option>
+            </select>
+          </div>
+          <div class="mb-2">
+            <label class="form-label">Status Barang</label>
+            <select class="form-select" name="status_barang">
+              <option value="rusak">Rusak (Tidak layak jual)</option>
+              <option value="layak">Layak Dijual Kembali</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-light" data-bs-dismiss="modal">Batal</button>
+          <button class="btn btn-primary"><i class="bi bi-check-lg"></i> Simpan Retur</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<%- include('partials/footer') %>

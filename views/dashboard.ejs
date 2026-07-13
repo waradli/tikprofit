@@ -1,0 +1,132 @@
+<%- include('partials/header') %>
+<div class="page-header">
+  <h4><i class="bi bi-speedometer2"></i> Dashboard</h4>
+  <span class="text-muted" style="font-size:0.8rem;"><i class="bi bi-calendar3"></i> <%= new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) %></span>
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-6 col-md-4 col-lg-2">
+    <div class="card stat-card stat-card-primary h-100">
+      <div class="card-body text-center">
+        <div class="stat-icon"><i class="bi bi-cart-check"></i></div>
+        <div class="stat-value"><%= totalTerjual.total %></div>
+        <div class="stat-label">Produk Terjual</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-6 col-md-4 col-lg-2">
+    <div class="card stat-card stat-card-warning h-100">
+      <div class="card-body text-center">
+        <div class="stat-icon"><i class="bi bi-arrow-return-left"></i></div>
+        <div class="stat-value"><%= totalRetur.total %></div>
+        <div class="stat-label">Produk Retur</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-6 col-md-4 col-lg-2">
+    <div class="card stat-card stat-card-success h-100">
+      <div class="card-body text-center">
+        <div class="stat-icon"><i class="bi bi-cash-stack"></i></div>
+        <div class="stat-value">Rp <%= Number(totalOmzet.total).toLocaleString('id-ID') %></div>
+        <div class="stat-label">Total Omzet</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-6 col-md-4 col-lg-2">
+    <div class="card stat-card stat-card-secondary h-100">
+      <div class="card-body text-center">
+        <div class="stat-icon"><i class="bi bi-calculator"></i></div>
+        <div class="stat-value">Rp <%= Number(totalModal.total).toLocaleString('id-ID') %></div>
+        <div class="stat-label">Total Modal</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-6 col-md-4 col-lg-2">
+    <div class="card stat-card stat-card-info h-100">
+      <div class="card-body text-center">
+        <div class="stat-icon"><i class="bi bi-graph-up-arrow"></i></div>
+        <div class="stat-value">Rp <%= Number(totalLabaKotor.total).toLocaleString('id-ID') %></div>
+        <div class="stat-label">Laba Kotor</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-6 col-md-4 col-lg-2">
+    <div class="card stat-card stat-card-danger h-100">
+      <div class="card-body text-center">
+        <div class="stat-icon"><i class="bi bi-exclamation-triangle"></i></div>
+        <div class="stat-value">Rp <%= Number(totalKerugian.total).toLocaleString('id-ID') %></div>
+        <div class="stat-label">Kerugian Retur</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-12">
+    <div class="card laba-bersih-card">
+      <div class="card-body text-center">
+        <h6 class="mb-1"><i class="bi bi-piggy-bank"></i> Laba Bersih</h6>
+        <h3 class="fw-bold mb-0">Rp <%= Number(totalLabaBersih).toLocaleString('id-ID') %></h3>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-md-6">
+    <div class="card chart-card">
+      <div class="card-header">
+        <h6 class="mb-0"><i class="bi bi-graph-up text-primary"></i> Grafik Penjualan</h6>
+      </div>
+      <div class="card-body">
+        <canvas id="penjualanChart" height="200"></canvas>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="card chart-card">
+      <div class="card-header">
+        <h6 class="mb-0"><i class="bi bi-graph-down text-warning"></i> Grafik Retur</h6>
+      </div>
+      <div class="card-body">
+        <canvas id="returChart" height="200"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const penjualanData = <%- JSON.stringify(penjualanByDate) %>;
+const returData = <%- JSON.stringify(returByDate) %>;
+
+new Chart(document.getElementById('penjualanChart'), {
+  type: 'line',
+  data: {
+    labels: penjualanData.map(d => d.tanggal),
+    datasets: [
+      { label: 'Omzet', data: penjualanData.map(d => d.omzet), borderColor: '#6C5CE7', backgroundColor: 'rgba(108,92,231,0.1)', fill: true, tension: 0.4, pointRadius: 3, pointBackgroundColor: '#6C5CE7' },
+      { label: 'Laba', data: penjualanData.map(d => d.laba), borderColor: '#00B894', backgroundColor: 'rgba(0,184,148,0.1)', fill: true, tension: 0.4, pointRadius: 3, pointBackgroundColor: '#00B894' }
+    ]
+  },
+  options: {
+    responsive: true,
+    plugins: { legend: { position: 'top', labels: { usePointStyle: true, padding: 15 } } },
+    scales: { y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.04)' } }, x: { grid: { display: false } } }
+  }
+});
+
+new Chart(document.getElementById('returChart'), {
+  type: 'bar',
+  data: {
+    labels: returData.map(d => d.tanggal),
+    datasets: [
+      { label: 'Jumlah Retur', data: returData.map(d => d.total), backgroundColor: 'rgba(253,203,110,0.7)', borderColor: '#FDCB6E', borderWidth: 1, borderRadius: 4 },
+      { label: 'Kerugian (Rp)', data: returData.map(d => d.kerugian), backgroundColor: 'rgba(225,112,85,0.7)', borderColor: '#E17055', borderWidth: 1, borderRadius: 4 }
+    ]
+  },
+  options: {
+    responsive: true,
+    plugins: { legend: { position: 'top', labels: { usePointStyle: true, padding: 15 } } },
+    scales: { y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.04)' } }, x: { grid: { display: false } } }
+  }
+});

@@ -1,0 +1,105 @@
+<%- include('partials/header') %>
+<div class="page-header">
+  <h4><i class="bi bi-cart-check"></i> Transaksi Penjualan</h4>
+  <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addModal"><i class="bi bi-plus-lg"></i> Transaksi Baru</button>
+</div>
+
+<div class="card">
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead>
+          <tr>
+            <th>Tanggal</th>
+            <th>Item</th>
+            <th>Total Modal</th>
+            <th>Total Omzet</th>
+            <th>Total Laba</th>
+            <th class="text-center">Aksi</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if(transactions.length === 0) { %>
+            <tr><td colspan="6">
+              <div class="empty-state">
+                <i class="bi bi-cart"></i>
+                <p class="text-muted mb-0">Belum ada transaksi. Klik "Transaksi Baru" untuk memulai.</p>
+              </div>
+            </td></tr>
+          <% } %>
+          <% transactions.forEach(t => { %>
+          <tr>
+            <td><span class="badge bg-light text-dark"><i class="bi bi-calendar3"></i> <%= t.tanggal %></span></td>
+            <td><small class="text-muted"><%= t.items ? t.items.substring(0,60) : '-' %></small></td>
+            <td>Rp <%= Number(t.total_modal).toLocaleString('id-ID') %></td>
+            <td>Rp <%= Number(t.total_omzet).toLocaleString('id-ID') %></td>
+            <td class="fw-bold text-success">Rp <%= Number(t.total_laba).toLocaleString('id-ID') %></td>
+            <td class="text-center">
+              <a href="/transactions/delete/<%= t.id %>" class="btn btn-sm btn-danger btn-action" onclick="return confirm('Hapus transaksi? Stok akan dikembalikan.')" title="Hapus"><i class="bi bi-trash"></i></a>
+            </td>
+          </tr>
+        <% }); %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div class="modal fade" id="addModal">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <form id="transactionForm" method="POST" action="/transactions">
+        <div class="modal-header"><h5 class="modal-title"><i class="bi bi-plus-circle text-primary"></i> Transaksi Baru</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label">Tanggal Transaksi</label>
+            <input class="form-control" name="tanggal" type="date" value="<%= new Date().toISOString().split('T')[0] %>">
+          </div>
+          <label class="form-label">Item Produk</label>
+          <div id="itemsContainer">
+            <div class="item-row row g-2 mb-2 p-2 rounded" style="background:#FAFAFE;">
+              <div class="col-6"><select class="form-select product-select form-select-sm" name="items[0][product_id]" required><option value="">Pilih Produk</option><% products.forEach(p => { %><option value="<%= p.id %>" data-modal="<%= p.modal %>" data-harga="<%= p.harga_jual %>"><%= p.name %> (stok: <%= p.stok %>)</option><% }); %></select></div>
+              <div class="col-3"><input class="form-control form-control-sm jumlah-input" name="items[0][jumlah]" type="number" min="1" placeholder="Jumlah" required></div>
+              <div class="col-3"><button type="button" class="btn btn-outline-danger btn-sm remove-item w-100"><i class="bi bi-x"></i></button></div>
+            </div>
+          </div>
+          <button type="button" class="btn btn-sm btn-outline-primary mb-3" id="addItem"><i class="bi bi-plus"></i> Tambah Item</button>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-light" data-bs-dismiss="modal">Batal</button>
+          <button class="btn btn-primary"><i class="bi bi-check-lg"></i> Simpan Transaksi</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+let itemIndex = 1;
+document.getElementById('addItem')?.addEventListener('click', function() {
+  const container = document.getElementById('itemsContainer');
+  const row = document.createElement('div');
+  row.className = 'item-row row g-2 mb-2 p-2 rounded';
+  row.style.background = '#FAFAFE';
+  row.innerHTML = `
+    <div class="col-6">
+      <select class="form-select product-select form-select-sm" name="items[${itemIndex}][product_id]" required>
+        <option value="">Pilih Produk</option>
+        <% products.forEach(p => { %>
+        <option value="<%= p.id %>" data-modal="<%= p.modal %>" data-harga="<%= p.harga_jual %>"><%= p.name %> (stok: <%= p.stok %>)</option>
+        <% }); %>
+      </select>
+    </div>
+    <div class="col-3"><input class="form-control form-control-sm jumlah-input" name="items[${itemIndex}][jumlah]" type="number" min="1" placeholder="Jumlah" required></div>
+    <div class="col-3"><button type="button" class="btn btn-outline-danger btn-sm remove-item w-100"><i class="bi bi-x"></i></button></div>
+  `;
+  container.appendChild(row);
+  itemIndex++;
+});
+
+document.addEventListener('click', function(e) {
+  if (e.target.closest('.remove-item')) {
+    e.target.closest('.item-row').remove();
+  }
+});
+</script>
+<%- include('partials/footer') %>
