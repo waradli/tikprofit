@@ -7,51 +7,47 @@ db.pragma('journal_mode = WAL');
 db.pragma('foreign_keys = ON');
 
 db.exec(`
-  CREATE TABLE IF NOT EXISTS products (
+  CREATE TABLE IF NOT EXISTS daily_finances (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL,
-    category TEXT DEFAULT '',
+    tanggal DATE NOT NULL UNIQUE,
+    uang_masuk REAL NOT NULL DEFAULT 0,
     modal REAL NOT NULL DEFAULT 0,
-    harga_jual REAL NOT NULL DEFAULT 0,
-    stok INTEGER NOT NULL DEFAULT 0,
+    margin REAL NOT NULL DEFAULT 0,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
   );
 
-  CREATE TABLE IF NOT EXISTS transactions (
+  CREATE TABLE IF NOT EXISTS pengeluaran (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    tanggal DATE NOT NULL DEFAULT (date('now')),
-    total_modal REAL NOT NULL DEFAULT 0,
-    total_omzet REAL NOT NULL DEFAULT 0,
-    total_laba REAL NOT NULL DEFAULT 0,
+    tanggal DATE NOT NULL,
+    jumlah REAL NOT NULL DEFAULT 0,
+    kategori TEXT DEFAULT '',
+    keterangan TEXT DEFAULT '',
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
   );
 
-  CREATE TABLE IF NOT EXISTS transaction_items (
+  CREATE TABLE IF NOT EXISTS pemasukan (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    transaction_id INTEGER NOT NULL,
-    product_id INTEGER NOT NULL,
-    jumlah INTEGER NOT NULL,
-    modal REAL NOT NULL,
-    harga_jual REAL NOT NULL,
-    laba REAL NOT NULL,
-    FOREIGN KEY (transaction_id) REFERENCES transactions(id) ON DELETE CASCADE,
-    FOREIGN KEY (product_id) REFERENCES products(id)
+    tanggal DATE NOT NULL,
+    jumlah REAL NOT NULL DEFAULT 0,
+    sumber TEXT DEFAULT '',
+    keterangan TEXT DEFAULT '',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
   );
 
-  CREATE TABLE IF NOT EXISTS returns (
+  CREATE TABLE IF NOT EXISTS pengantaran (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    transaction_id INTEGER NOT NULL,
-    product_id INTEGER NOT NULL,
-    jumlah INTEGER NOT NULL,
-    tanggal_retur DATE NOT NULL DEFAULT (date('now')),
-    alasan TEXT DEFAULT '',
-    status_barang TEXT DEFAULT 'rusak' CHECK(status_barang IN ('layak','rusak')),
-    kerugian REAL NOT NULL DEFAULT 0,
-    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (transaction_id) REFERENCES transactions(id),
-    FOREIGN KEY (product_id) REFERENCES products(id)
+    tanggal DATE NOT NULL,
+    kode_barang TEXT NOT NULL,
+    status TEXT NOT NULL DEFAULT 'transit',
+    diterima TEXT NOT NULL DEFAULT 'belum',
+    username TEXT NOT NULL,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
   );
 `);
+
+try { db.exec("ALTER TABLE pengantaran ADD COLUMN nomor_pesanan TEXT DEFAULT ''"); } catch (e) {}
+try { db.exec("ALTER TABLE pengantaran ADD COLUMN nomor_resi TEXT DEFAULT ''"); } catch (e) {}
+try { db.exec("ALTER TABLE pengantaran ADD COLUMN harga REAL NOT NULL DEFAULT 0"); } catch (e) {}
 
 module.exports = db;

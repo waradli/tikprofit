@@ -1,0 +1,86 @@
+<%- include('partials/header') %>
+<div class="page-header">
+  <h4><i class="bi bi-box-arrow-right"></i> Arus Keluaran</h4>
+  <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addModal"><i class="bi bi-plus-lg"></i> Tambah Pengeluaran</button>
+</div>
+
+<div class="card">
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead>
+          <tr>
+            <th>Tanggal</th>
+            <th>Kategori</th>
+            <th>Keterangan</th>
+            <th>Jumlah</th>
+            <th class="text-center">Aksi</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if(pengeluaran.length === 0) { %>
+            <tr><td colspan="5">
+              <div class="empty-state">
+                <i class="bi bi-box-arrow-right"></i>
+                <p class="text-muted mb-0">Belum ada pengeluaran.</p>
+              </div>
+            </td></tr>
+          <% } %>
+          <% pengeluaran.forEach(p => { %>
+          <tr>
+            <td><span class="badge bg-light text-dark"><i class="bi bi-calendar3"></i> <%= p.tanggal %></span></td>
+            <td><span class="badge bg-secondary"><%= p.kategori || '-' %></span></td>
+            <td><%= p.keterangan || '-' %></td>
+            <td class="fw-semibold text-danger">-Rp <%= Number(p.jumlah).toLocaleString('id-ID') %></td>
+            <td class="text-center">
+              <a href="/pengeluaran/delete/<%= p.id %>" class="btn btn-sm btn-danger btn-action" onclick="return confirm('Hapus pengeluaran ini?')" title="Hapus"><i class="bi bi-trash"></i></a>
+            </td>
+          </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="addModal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form method="POST" action="/pengeluaran">
+        <div class="modal-header"><h5 class="modal-title"><i class="bi bi-plus-circle text-primary"></i> Tambah Pengeluaran</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label">Tanggal</label>
+            <input class="form-control" name="tanggal" type="date" value="<%= new Date().toISOString().split('T')[0] %>" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Jumlah (Rp)</label>
+            <input class="form-control" name="jumlah" type="number" step="0.01" placeholder="0" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Kategori</label>
+            <select class="form-select" name="kategori">
+              <option value="">-- Pilih Kategori --</option>
+              <option value="belanja">Belanja</option>
+              <option value="transport">Transport</option>
+              <option value="makanan">Makanan & Minuman</option>
+              <option value="utilitas">Utilitas</option>
+              <option value="gaji">Gaji Karyawan</option>
+              <option value="sewa">Sewa</option>
+              <option value="lainnya">Lainnya</option>
+            </select>
+          </div>
+          <div class="mb-2">
+            <label class="form-label">Keterangan</label>
+            <textarea class="form-control" name="keterangan" rows="2" placeholder="Deskripsi pengeluaran"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-light" data-bs-dismiss="modal">Batal</button>
+          <button class="btn btn-primary"><i class="bi bi-check-lg"></i> Simpan</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<%- include('partials/footer') %>

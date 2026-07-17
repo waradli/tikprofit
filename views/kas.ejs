@@ -1,0 +1,106 @@
+<%- include('partials/header') %>
+<div class="page-header">
+  <h4><i class="bi bi-wallet2"></i> Buku Kas</h4>
+</div>
+
+<div class="card mb-3">
+  <div class="card-body">
+    <div class="row g-2 align-items-end">
+      <div class="col-6 col-md-3">
+        <label class="form-label">Dari Tanggal</label>
+        <input class="form-control" type="date" id="startDate" value="<%= start %>">
+      </div>
+      <div class="col-6 col-md-3">
+        <label class="form-label">Sampai Tanggal</label>
+        <input class="form-control" type="date" id="endDate" value="<%= end %>">
+      </div>
+      <div class="col-12 col-md-3">
+        <button class="btn btn-primary w-100" onclick="filter()"><i class="bi bi-funnel"></i> Filter</button>
+      </div>
+      <div class="col-12 col-md-3">
+        <a href="/kas" class="btn btn-outline-secondary w-100"><i class="bi bi-x"></i> Reset</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-6 col-md-4">
+    <div class="card stat-card stat-card-success h-100">
+      <div class="card-body text-center">
+        <div class="stat-icon"><i class="bi bi-arrow-down-circle"></i></div>
+        <div class="stat-value">Rp <%= Number(totalDebit).toLocaleString('id-ID') %></div>
+        <div class="stat-label">Total Debit</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-6 col-md-4">
+    <div class="card stat-card stat-card-danger h-100">
+      <div class="card-body text-center">
+        <div class="stat-icon"><i class="bi bi-arrow-up-circle"></i></div>
+        <div class="stat-value">Rp <%= Number(totalKredit).toLocaleString('id-ID') %></div>
+        <div class="stat-label">Total Kredit</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-6 col-md-4">
+    <div class="card stat-card" style="background:var(--gradient-primary)!important;color:white;border:none;border-radius:16px;">
+      <div class="card-body text-center">
+        <div class="stat-icon" style="background:rgba(255,255,255,0.2);color:white;width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;margin:0 auto 0.75rem;">
+          <i class="bi bi-piggy-bank"></i>
+        </div>
+        <div class="stat-value" style="font-size:1.5rem;font-weight:800;">Rp <%= Number(saldoAkhir).toLocaleString('id-ID') %></div>
+        <div class="stat-label" style="font-size:0.7rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;opacity:0.8;">Saldo Akhir</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead>
+          <tr>
+            <th>Tanggal</th>
+            <th>Keterangan</th>
+            <th>Debit</th>
+            <th>Kredit</th>
+            <th>Saldo</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if(kas.length === 0) { %>
+            <tr><td colspan="5">
+              <div class="empty-state">
+                <i class="bi bi-wallet2"></i>
+                <p class="text-muted mb-0">Belum ada transaksi kas.</p>
+              </div>
+            </td></tr>
+          <% } %>
+          <% kas.forEach(k => { %>
+          <tr>
+            <td><span class="badge bg-light text-dark"><i class="bi bi-calendar3"></i> <%= k.tanggal %></span></td>
+            <td><%= k.keterangan %></td>
+            <td class="fw-semibold text-success"><%= k.debit > 0 ? 'Rp ' + Number(k.debit).toLocaleString('id-ID') : '-' %></td>
+            <td class="fw-semibold text-danger"><%= k.kredit > 0 ? 'Rp ' + Number(k.kredit).toLocaleString('id-ID') : '-' %></td>
+            <td class="fw-bold <%= k.saldo >= 0 ? 'text-success' : 'text-danger' %>">Rp <%= Number(k.saldo).toLocaleString('id-ID') %></td>
+          </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+function filter() {
+  const start = document.getElementById('startDate').value;
+  const end = document.getElementById('endDate').value;
+  const params = new URLSearchParams();
+  if (start) params.append('start', start);
+  if (end) params.append('end', end);
+  window.location.href = '/kas?' + params.toString();
+}
+</script>
+<%- include('partials/footer') %>

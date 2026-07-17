@@ -1,0 +1,168 @@
+<%- include('partials/header') %>
+<div class="page-header">
+  <h4><i class="bi bi-truck"></i> Pengantaran Gagal</h4>
+  <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addModal"><i class="bi bi-plus-lg"></i> Tambah</button>
+</div>
+
+<div class="row g-3 mb-4">
+  <div class="col-6 col-md-4 col-lg">
+    <div class="card stat-card stat-card-dark h-100">
+      <div class="card-body text-center">
+        <div class="stat-icon"><i class="bi bi-truck"></i></div>
+        <div class="stat-value"><%= total.total %></div>
+        <div class="stat-label">Total Pengantaran</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-6 col-md-4 col-lg">
+    <div class="card stat-card stat-card-warning h-100">
+      <div class="card-body text-center">
+        <div class="stat-icon"><i class="bi bi-send"></i></div>
+        <div class="stat-value"><%= transit.total %></div>
+        <div class="stat-label">Transit</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-6 col-md-4 col-lg">
+    <div class="card stat-card stat-card-success h-100">
+      <div class="card-body text-center">
+        <div class="stat-icon"><i class="bi bi-check-circle"></i></div>
+        <div class="stat-value"><%= sampai.total %></div>
+        <div class="stat-label">Sampai</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-6 col-md-4 col-lg">
+    <div class="card stat-card stat-card-danger h-100">
+      <div class="card-body text-center">
+        <div class="stat-icon"><i class="bi bi-hourglass-split"></i></div>
+        <div class="stat-value"><%= belumDiterima.total %></div>
+        <div class="stat-label">Belum Diterima</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-6 col-md-4 col-lg">
+    <div class="card stat-card stat-card-success h-100">
+      <div class="card-body text-center">
+        <div class="stat-icon"><i class="bi bi-check-all"></i></div>
+        <div class="stat-value"><%= sudahDiterima.total %></div>
+        <div class="stat-label">Sudah Diterima</div>
+      </div>
+    </div>
+  </div>
+  <div class="col-6 col-md-4 col-lg">
+    <div class="card stat-card stat-card-danger h-100">
+      <div class="card-body text-center">
+        <div class="stat-icon"><i class="bi bi-cash"></i></div>
+        <div class="stat-value">Rp <%= Number(totalHarga.total).toLocaleString('id-ID') %></div>
+        <div class="stat-label">Total Harga</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table table-hover align-middle mb-0">
+        <thead>
+          <tr>
+            <th>Tanggal</th>
+            <th>Kode Barang</th>
+            <th>Nomor Pesanan</th>
+            <th>Nomor Resi</th>
+            <th>Username</th>
+            <th>Harga</th>
+            <th>Status</th>
+            <th>Diterima</th>
+            <th class="text-center">Aksi</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% if(items.length === 0) { %>
+            <tr><td colspan="9">
+              <div class="empty-state">
+                <i class="bi bi-truck"></i>
+                <p class="text-muted mb-0">Belum ada data pengantaran.</p>
+              </div>
+            </td></tr>
+          <% } %>
+          <% items.forEach(i => { %>
+          <tr>
+            <td><span class="badge bg-light text-dark"><i class="bi bi-calendar3"></i> <%= i.tanggal %></span></td>
+            <td class="fw-semibold"><%= i.kode_barang %></td>
+            <td><code><%= i.nomor_pesanan || '-' %></code></td>
+            <td><code><%= i.nomor_resi || '-' %></code></td>
+            <td><%= i.username %></td>
+            <td class="fw-semibold">Rp <%= Number(i.harga).toLocaleString('id-ID') %></td>
+            <td>
+              <div class="d-flex gap-1">
+                <form method="POST" action="/pengantaran/status/<%= i.id %>" class="d-inline">
+                  <input type="hidden" name="status" value="transit">
+                  <button class="btn btn-sm <%= i.status === 'transit' ? 'btn-warning' : 'btn-outline-warning' %>">Transit</button>
+                </form>
+                <form method="POST" action="/pengantaran/status/<%= i.id %>" class="d-inline">
+                  <input type="hidden" name="status" value="sampai">
+                  <button class="btn btn-sm <%= i.status === 'sampai' ? 'btn-success' : 'btn-outline-success' %>">Sampai</button>
+                </form>
+              </div>
+            </td>
+            <td>
+              <div class="d-flex gap-1">
+                <form method="POST" action="/pengantaran/diterima/<%= i.id %>" class="d-inline">
+                  <input type="hidden" name="diterima" value="belum">
+                  <button class="btn btn-sm <%= i.diterima === 'belum' ? 'btn-danger' : 'btn-outline-danger' %>">Belum</button>
+                </form>
+                <form method="POST" action="/pengantaran/diterima/<%= i.id %>" class="d-inline">
+                  <input type="hidden" name="diterima" value="sudah">
+                  <button class="btn btn-sm <%= i.diterima === 'sudah' ? 'btn-success' : 'btn-outline-success' %>">Sudah</button>
+                </form>
+              </div>
+            </td>
+            <td class="text-center">
+              <a href="/pengantaran/delete/<%= i.id %>" class="btn btn-sm btn-danger btn-action" onclick="return confirm('Hapus data ini?')" title="Hapus"><i class="bi bi-trash"></i></a>
+            </td>
+          </tr>
+          <% }); %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="addModal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form method="POST" action="/pengantaran">
+        <div class="modal-header"><h5 class="modal-title"><i class="bi bi-plus-circle text-primary"></i> Tambah Pengantaran</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label">Tanggal</label>
+            <input class="form-control" name="tanggal" type="date" value="<%= new Date().toISOString().split('T')[0] %>" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Kode Barang</label>
+            <input class="form-control" name="kode_barang" placeholder="Contoh: BRG-001" required>
+          </div>
+          <div class="row g-2 mb-3">
+            <div class="col-6"><label class="form-label">Nomor Pesanan</label><input class="form-control" name="nomor_pesanan" placeholder="Contoh: INV-001"></div>
+            <div class="col-6"><label class="form-label">Nomor Resi</label><input class="form-control" name="nomor_resi" placeholder="Contoh: JNE123456"></div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Username</label>
+            <input class="form-control" name="username" placeholder="Username pembeli" required>
+          </div>
+          <div class="mb-2">
+            <label class="form-label">Harga Barang (Rp)</label>
+            <input class="form-control" name="harga" type="number" step="0.01" placeholder="0" required>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-light" data-bs-dismiss="modal">Batal</button>
+          <button class="btn btn-primary"><i class="bi bi-check-lg"></i> Simpan</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+<%- include('partials/footer') %>

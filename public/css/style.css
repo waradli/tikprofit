@@ -37,8 +37,8 @@ body {
 }
 
 .navbar {
-  background: var(--gradient-primary) !important;
-  box-shadow: 0 2px 20px rgba(108, 92, 231, 0.3);
+  background: linear-gradient(135deg, #FF6B9D, #FF8EAB) !important;
+  box-shadow: 0 2px 20px rgba(255, 107, 157, 0.3);
   padding: 0.6rem 0;
 }
 
@@ -168,6 +168,10 @@ body {
 .stat-card-danger .stat-icon { background: rgba(225,112,85,0.12); color: #E17055; }
 .stat-card-danger .stat-value { color: #E17055; }
 .stat-card-danger::before { background: #E17055; }
+
+.stat-card-dark .stat-icon { background: rgba(45,52,54,0.12); color: #2D3436; }
+.stat-card-dark .stat-value { color: #2D3436; }
+.stat-card-dark::before { background: #2D3436; }
 
 .stat-card {
   border: none;

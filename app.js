@@ -11,17 +11,19 @@ app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
 const indexRoutes = require('./routes/index');
-const productRoutes = require('./routes/products');
 const transactionRoutes = require('./routes/transactions');
-const returnRoutes = require('./routes/returns');
+const pengeluaranRoutes = require('./routes/pengeluaran');
+const kasRoutes = require('./routes/kas');
+const pengantaranRoutes = require('./routes/pengantaran');
 const reportRoutes = require('./routes/reports');
 
 app.use('/', indexRoutes);
-app.use('/products', productRoutes);
 app.use('/transactions', transactionRoutes);
-app.use('/returns', returnRoutes);
+app.use('/pengeluaran', pengeluaranRoutes);
+app.use('/kas', kasRoutes);
+app.use('/pengantaran', pengantaranRoutes);
 app.use('/reports', reportRoutes);
 
 app.listen(PORT, () => {
-  console.log(`TikProfit running on http://localhost:${PORT}`);
+  console.log(`Aplikasi Keuangan running on http://localhost:${PORT}`);
 });

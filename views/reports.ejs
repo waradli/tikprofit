@@ -1,6 +1,6 @@
 <%- include('partials/header') %>
 <div class="page-header">
-  <h4><i class="bi bi-file-earmark-bar-graph"></i> Laporan</h4>
+  <h4><i class="bi bi-file-earmark-bar-graph"></i> Laporan Keuangan</h4>
   <span class="text-muted" style="font-size:0.8rem;"><i class="bi bi-info-circle"></i> Filter berdasarkan periode</span>
 </div>
 
@@ -30,13 +30,13 @@
   <div class="col-md-4">
     <div class="card report-card">
       <div class="card-header">
-        <h6 class="mb-0"><i class="bi bi-cart-check text-primary"></i> Laporan Penjualan</h6>
+        <h6 class="mb-0"><i class="bi bi-cash-stack text-primary"></i> Laporan Pemasukan</h6>
       </div>
       <div class="card-body p-0">
         <div class="table-responsive" style="max-height:320px">
           <table class="table table-sm table-hover mb-0">
-            <thead><tr><th>Tanggal</th><th>Omzet</th><th>Laba</th></tr></thead>
-            <tbody id="penjualanBody"></tbody>
+            <thead><tr><th>Tanggal</th><th>Uang Masuk</th><th>Modal</th><th>Margin</th></tr></thead>
+            <tbody id="finansialBody"></tbody>
           </table>
         </div>
       </div>
@@ -45,13 +45,13 @@
   <div class="col-md-4">
     <div class="card report-card">
       <div class="card-header">
-        <h6 class="mb-0"><i class="bi bi-arrow-return-left text-warning"></i> Laporan Retur</h6>
+        <h6 class="mb-0"><i class="bi bi-box-arrow-right text-danger"></i> Laporan Pengeluaran</h6>
       </div>
       <div class="card-body p-0">
         <div class="table-responsive" style="max-height:320px">
           <table class="table table-sm table-hover mb-0">
-            <thead><tr><th>Tanggal</th><th>Produk</th><th>Jml</th><th>Kerugian</th></tr></thead>
-            <tbody id="returBody"></tbody>
+            <thead><tr><th>Tanggal</th><th>Kategori</th><th>Jumlah</th></tr></thead>
+            <tbody id="pengeluaranBody"></tbody>
           </table>
         </div>
       </div>
@@ -60,28 +60,28 @@
   <div class="col-md-4">
     <div class="card report-card">
       <div class="card-header">
-        <h6 class="mb-0"><i class="bi bi-pie-chart text-success"></i> Ringkasan Laba</h6>
+        <h6 class="mb-0"><i class="bi bi-pie-chart text-success"></i> Ringkasan Keuangan</h6>
       </div>
       <div class="card-body">
         <div class="d-flex justify-content-between mb-2 pb-2 border-bottom">
-          <span class="text-muted">Omzet</span>
-          <strong id="labaOmzet">Rp 0</strong>
+          <span class="text-muted">Total Pemasukan</span>
+          <strong id="rptPemasukan">Rp 0</strong>
         </div>
         <div class="d-flex justify-content-between mb-2 pb-2 border-bottom">
-          <span class="text-muted">Modal</span>
-          <strong id="labaModal">Rp 0</strong>
+          <span class="text-muted">Total Modal</span>
+          <strong id="rptModal">Rp 0</strong>
         </div>
         <div class="d-flex justify-content-between mb-2 pb-2 border-bottom">
-          <span class="text-muted">Laba Kotor</span>
-          <strong id="labaKotor" class="text-info">Rp 0</strong>
+          <span class="text-muted">Total Margin</span>
+          <strong id="rptMargin" class="text-info">Rp 0</strong>
         </div>
         <div class="d-flex justify-content-between mb-2 pb-2 border-bottom">
-          <span class="text-muted">Kerugian Retur</span>
-          <strong id="labaKerugian" class="text-danger">Rp 0</strong>
+          <span class="text-muted">Total Pengeluaran</span>
+          <strong id="rptPengeluaran" class="text-danger">Rp 0</strong>
         </div>
         <div class="d-flex justify-content-between pt-2">
-          <span class="fw-bold">Laba Bersih</span>
-          <strong id="labaBersih" class="text-success fs-5">Rp 0</strong>
+          <span class="fw-bold">Kas Akhir</span>
+          <strong id="rptKas" class="text-success fs-5">Rp 0</strong>
         </div>
       </div>
     </div>
@@ -96,24 +96,24 @@ function loadReports() {
   if (start) params.append('start', start);
   if (end) params.append('end', end);
 
-  fetch('/reports/penjualan?' + params.toString()).then(r => r.json()).then(data => {
-    const tbody = document.getElementById('penjualanBody');
-    tbody.innerHTML = data.map(d => `<tr><td>${d.tanggal}</td><td>Rp ${Number(d.total_omzet).toLocaleString('id-ID')}</td><td class="text-success">Rp ${Number(d.total_laba).toLocaleString('id-ID')}</td></tr>`).join('');
-    if (!data.length) tbody.innerHTML = '<tr><td colspan="3" class="text-center text-muted py-3">Tidak ada data</td></tr>';
-  });
-
-  fetch('/reports/retur?' + params.toString()).then(r => r.json()).then(data => {
-    const tbody = document.getElementById('returBody');
-    tbody.innerHTML = data.map(d => `<tr><td>${d.tanggal_retur}</td><td>${d.product_name}</td><td>${d.jumlah}</td><td class="text-danger">-Rp ${Number(d.kerugian).toLocaleString('id-ID')}</td></tr>`).join('');
+  fetch('/reports/finansial?' + params.toString()).then(r => r.json()).then(data => {
+    const tbody = document.getElementById('finansialBody');
+    tbody.innerHTML = data.map(d => `<tr><td>${d.tanggal}</td><td class="text-success">Rp ${Number(d.uang_masuk).toLocaleString('id-ID')}</td><td>Rp ${Number(d.modal).toLocaleString('id-ID')}</td><td class="text-info">Rp ${Number(d.margin).toLocaleString('id-ID')}</td></tr>`).join('');
     if (!data.length) tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted py-3">Tidak ada data</td></tr>';
   });
 
-  fetch('/reports/laba?' + params.toString()).then(r => r.json()).then(data => {
-    document.getElementById('labaOmzet').textContent = 'Rp ' + Number(data.penjualan.omzet).toLocaleString('id-ID');
-    document.getElementById('labaModal').textContent = 'Rp ' + Number(data.penjualan.modal).toLocaleString('id-ID');
-    document.getElementById('labaKotor').textContent = 'Rp ' + Number(data.penjualan.laba).toLocaleString('id-ID');
-    document.getElementById('labaKerugian').textContent = 'Rp ' + Number(data.retur.total_kerugian).toLocaleString('id-ID');
-    document.getElementById('labaBersih').textContent = 'Rp ' + Number(data.labaBersih).toLocaleString('id-ID');
+  fetch('/reports/pengeluaran?' + params.toString()).then(r => r.json()).then(data => {
+    const tbody = document.getElementById('pengeluaranBody');
+    tbody.innerHTML = data.map(d => `<tr><td>${d.tanggal}</td><td>${d.kategori || '-'}</td><td class="text-danger">-Rp ${Number(d.jumlah).toLocaleString('id-ID')}</td></tr>`).join('');
+    if (!data.length) tbody.innerHTML = '<tr><td colspan="3" class="text-center text-muted py-3">Tidak ada data</td></tr>';
+  });
+
+  fetch('/reports/ringkasan?' + params.toString()).then(r => r.json()).then(data => {
+    document.getElementById('rptPemasukan').textContent = 'Rp ' + Number(data.finansial.uang_masuk).toLocaleString('id-ID');
+    document.getElementById('rptModal').textContent = 'Rp ' + Number(data.finansial.modal).toLocaleString('id-ID');
+    document.getElementById('rptMargin').textContent = 'Rp ' + Number(data.finansial.margin).toLocaleString('id-ID');
+    document.getElementById('rptPengeluaran').textContent = 'Rp ' + Number(data.pengeluaran).toLocaleString('id-ID');
+    document.getElementById('rptKas').textContent = 'Rp ' + Number(data.kas).toLocaleString('id-ID');
   });
 }
 
