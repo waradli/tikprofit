@@ -1,8 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const db = require('../database');
+const { ready, query } = require('../database');
 
-router.get('/', (req, res) => {
+router.get('/', async (req, res) => {
+  await ready;
   const { start, end } = req.query;
 
   let whereClause = '';
@@ -12,7 +13,7 @@ router.get('/', (req, res) => {
     params.push(start, end);
   }
 
-  const entries = db.prepare(`
+  const entries = await query(`
     SELECT tanggal, keterangan, debit, kredit FROM (
       SELECT tanggal, 'Uang Masuk Harian' as keterangan, uang_masuk as debit, 0 as kredit
       FROM daily_finances WHERE uang_masuk > 0
@@ -24,12 +25,12 @@ router.get('/', (req, res) => {
         0 as debit, jumlah as kredit
       FROM pengeluaran
     )${whereClause} ORDER BY tanggal, debit DESC
-  `).all(...params);
+  `, params);
 
   let saldo = 0;
   const kas = entries.map(e => {
     saldo += e.debit - e.kredit;
-    return { ...e, saldo: saldo };
+    return { ...e, saldo };
   });
 
   const totalDebit = kas.reduce((s, e) => s + e.debit, 0);

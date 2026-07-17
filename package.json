@@ -5,6 +5,7 @@
   "main": "app.js",
   "scripts": {
     "start": "node app.js",
+    "dev": "vercel dev",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -12,11 +13,14 @@
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
-    "better-sqlite3": "^12.11.1",
+    "@libsql/client": "^0.14.0",
     "chart.js": "^4.5.1",
     "ejs": "^6.0.1",
     "exceljs": "^4.4.0",
     "express": "^5.2.1",
     "pdfkit": "^0.19.1"
+  },
+  "devDependencies": {
+    "@vercel/node": "^5.0.0"
   }
 }

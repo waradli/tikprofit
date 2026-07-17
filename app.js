@@ -1,7 +1,6 @@
 const express = require('express');
 const path = require('path');
 const app = express();
-const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -24,6 +23,11 @@ app.use('/kas', kasRoutes);
 app.use('/pengantaran', pengantaranRoutes);
 app.use('/reports', reportRoutes);
 
-app.listen(PORT, () => {
-  console.log(`Aplikasi Keuangan running on http://localhost:${PORT}`);
-});
+if (!process.env.VERCEL) {
+  const PORT = process.env.PORT || 3000;
+  app.listen(PORT, () => {
+    console.log(`Aplikasi Keuangan running on http://localhost:${PORT}`);
+  });
+}
+
+module.exports = app;

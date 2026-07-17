@@ -1,39 +1,45 @@
 const express = require('express');
 const router = express.Router();
-const db = require('../database');
+const { ready, get, query, run } = require('../database');
 
-router.get('/', (req, res) => {
-  const items = db.prepare('SELECT * FROM pengantaran ORDER BY tanggal DESC, id DESC').all();
-  const total = db.prepare('SELECT COUNT(*) as total FROM pengantaran').get();
-  const totalHarga = db.prepare('SELECT COALESCE(SUM(harga),0) as total FROM pengantaran').get();
-  const transit = db.prepare("SELECT COUNT(*) as total FROM pengantaran WHERE status='transit'").get();
-  const sampai = db.prepare("SELECT COUNT(*) as total FROM pengantaran WHERE status='sampai'").get();
-  const belumDiterima = db.prepare("SELECT COUNT(*) as total FROM pengantaran WHERE diterima='belum'").get();
-  const sudahDiterima = db.prepare("SELECT COUNT(*) as total FROM pengantaran WHERE diterima='sudah'").get();
+router.get('/', async (req, res) => {
+  await ready;
+  const items = await query('SELECT * FROM pengantaran ORDER BY tanggal DESC, id DESC');
+  const total = await get('SELECT COUNT(*) as total FROM pengantaran');
+  const totalHarga = await get('SELECT COALESCE(SUM(harga),0) as total FROM pengantaran');
+  const transit = await get("SELECT COUNT(*) as total FROM pengantaran WHERE status='transit'");
+  const sampai = await get("SELECT COUNT(*) as total FROM pengantaran WHERE status='sampai'");
+  const belumDiterima = await get("SELECT COUNT(*) as total FROM pengantaran WHERE diterima='belum'");
+  const sudahDiterima = await get("SELECT COUNT(*) as total FROM pengantaran WHERE diterima='sudah'");
+
   res.render('pengantaran', { items, total, totalHarga, transit, sampai, belumDiterima, sudahDiterima });
 });
 
-router.post('/', (req, res) => {
+router.post('/', async (req, res) => {
+  await ready;
   const { tanggal, kode_barang, nomor_pesanan, nomor_resi, username, harga } = req.body;
-  db.prepare('INSERT INTO pengantaran (tanggal, kode_barang, nomor_pesanan, nomor_resi, username, harga) VALUES (?,?,?,?,?,?)')
-    .run(tanggal, kode_barang, nomor_pesanan || '', nomor_resi || '', username, parseFloat(harga) || 0);
+  await run('INSERT INTO pengantaran (tanggal, kode_barang, nomor_pesanan, nomor_resi, username, harga) VALUES (?,?,?,?,?,?)',
+    [tanggal, kode_barang, nomor_pesanan || '', nomor_resi || '', username, parseFloat(harga) || 0]);
   res.redirect('/pengantaran');
 });
 
-router.post('/status/:id', (req, res) => {
+router.post('/status/:id', async (req, res) => {
+  await ready;
   const { status } = req.body;
-  db.prepare('UPDATE pengantaran SET status=? WHERE id=?').run(status, req.params.id);
+  await run('UPDATE pengantaran SET status=? WHERE id=?', [status, req.params.id]);
   res.redirect('/pengantaran');
 });
 
-router.post('/diterima/:id', (req, res) => {
+router.post('/diterima/:id', async (req, res) => {
+  await ready;
   const { diterima } = req.body;
-  db.prepare('UPDATE pengantaran SET diterima=? WHERE id=?').run(diterima, req.params.id);
+  await run('UPDATE pengantaran SET diterima=? WHERE id=?', [diterima, req.params.id]);
   res.redirect('/pengantaran');
 });
 
-router.get('/delete/:id', (req, res) => {
-  db.prepare('DELETE FROM pengantaran WHERE id=?').run(req.params.id);
+router.get('/delete/:id', async (req, res) => {
+  await ready;
+  await run('DELETE FROM pengantaran WHERE id=?', [req.params.id]);
   res.redirect('/pengantaran');
 });
 
